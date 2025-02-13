@@ -10,16 +10,9 @@ export class StartParamDefine {
     id: string
     port: number
     serverType: string
-    nodePath: string
-    appPath: string
-    dev: boolean
     client_ip: string
     client_port: number
-    ws_port: number
     isStatic: boolean
-    isForce: boolean
-    // 懒惰模式 handler config 都是不预加载
-    lazy: boolean
     started: boolean
 }
 
@@ -47,7 +40,7 @@ declare global {
  ⠄⠄⠄⠄⠄⠄⠄⣿⡟⣷⠄⠹⣿⣿⣿⡿⠁⠄⠄⠄⠄⠄⠄⠄⠄
  */
 export class App {
-    public static cacheMap = {}
+    public static cacheMap: any = {}
     public static app: application
     public static koaApp: KoaApp
 
@@ -55,7 +48,7 @@ export class App {
     public static routeUtil: RouteUtil
 
     // 示例 C:\work\4、服务端\game_server
-    public static root: string
+    public static rootPath: string
     public static startTime: Date
 
     public static get SystemUtil(): SystemUtil {

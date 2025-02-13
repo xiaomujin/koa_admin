@@ -16,7 +16,8 @@ export class application {
         let startParam: StartParamDefine = App.SystemUtil.formatArgv(process.argv);
         App.startParam = startParam;
         App.startTime = new Date();
-        App.root = __dirname;
+        App.rootPath = __dirname;
+        console.log(`项目路径：${App.rootPath}`);
         await this.lifecycle?.loadOptions();
         preload();
         console.log(`${startParam.id || "master"} 开始启动`)

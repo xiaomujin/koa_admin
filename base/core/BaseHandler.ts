@@ -30,8 +30,8 @@ export class BaseHandler {
 
     public afterHandle(msg: any, session: any, handler_result: any) {
         let useTime = Date.now() - this.startTime;
-        if (useTime > 80) {
-            console.warn(`接口请求 ${this.urlTemp.route}/${this.urlTemp.method}  耗时${useTime}ms`);
+        if (useTime > 0) {
+            console.warn(`接口请求 ${this.urlTemp.routeName}  ${this.urlTemp.method}  耗时${useTime}ms`);
         }
 
     }

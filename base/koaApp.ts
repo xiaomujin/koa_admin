@@ -1,42 +1,34 @@
 import * as Koa from 'koa';
 import * as koaBodyParser from 'koa-bodyparser';
 import * as cors from 'koa2-cors';
-import * as path from "path";
+import * as KoaStatic from 'koa-static';
+import * as koa_session from 'koa-session';
+import * as multer from '@koa/multer';
+import http = require('http');
+import https = require('https');
 import {App} from "./App";
 import {ErrorCode} from "../const/ErrorCode";
 import {serverDevOption} from "../config/serverDevOption";
 import {enableHandlerHttps} from "../tool/httpsUtil";
-import {createServer} from "http";
 import {BaseHandler} from "./core/BaseHandler";
 
-const KoaStatic = require('koa-static')
-const koa_session = require('koa-session');
-const multer = require('@koa/multer');
-
 export class KoaApp {
-    private app: any;
-    public server;
+    private app: Koa;
+    public server: http.Server | https.Server;
 
     private async handle(ctx, next) {
-        let httpUrl = ctx.host + ctx.path;
-        let urlList = httpUrl.split("/");
-        if (urlList[1].indexOf("serverProxy") != -1) {
-            urlList.splice(1, 1);
-        }
-
-        let req_key: string = null
-        //后续如果反向代理 则需要处理代理标识
-        let [host, route, method] = urlList;
-
-
-        // method = method?.split("?")[0]; //兼容一下get
-        let handler: { handler: Function, route: BaseHandler } = App.routeUtil.getHandler(route, method);
+        let host: string = ctx.host;
+        let path: string = ctx.path;
+        let lastIndexOf = path.lastIndexOf('/');
+        let method = path.substring(lastIndexOf + 1); // 获取最后一个 / 后面的部分
+        let routeName = path.substring(1, lastIndexOf); // 获取最后一个 / 前面的部分
+        let handler: { handler: Function, route: BaseHandler } = App.routeUtil.getHandler(routeName, method);
 
         if (!handler?.handler) {
             return ctx.fail(ErrorCode.enum.NO_HANDLER_TO_REQ);
         }
         handler.route.urlTemp = {
-            host, route, method
+            host, routeName, method
         };
         let handleRes = await App.SystemUtil.safeRunFuncAsync(async () => {
             let params = Object.assign(ctx.request.body, ctx.query);
@@ -123,16 +115,7 @@ export class KoaApp {
         app.use(multer({}).any())
         app.use(koaBodyParser())
         app.use(this.initBackFnc)
-        let test = {};
-        App.setKey("test", test)
-        // app.use( async (ctx,next)=>{
-        //     let httpUrl = ctx.host + ctx.path;
-        //     const regex = /\.(png|jpg)$/;
-        //     if(regex.test(httpUrl)){
-        //         test[ctx.path] =1
-        //     }
-        //     await next();
-        // })
+
         //配置session的中间件
         app.keys = ['ccwlzj'];   /*cookie的签名*/
         const CONFIG = {
@@ -158,7 +141,7 @@ export class KoaApp {
             // }))
         })
 
-        let pathStr = path.join(__dirname, '../../admin_web/');
+        let pathStr = App.rootPath + "/admin_web";
         if (serverDevOption.adminWebDir) {
             pathStr = serverDevOption.adminWebDir;
         }
@@ -169,7 +152,6 @@ export class KoaApp {
                 defer: false      // 如果为true，则在返回next()之后进行服务，从而允许后续中间件先进行响应
             }))
         }
-
 
         app.use(this.handle)
 
@@ -182,7 +164,6 @@ export class KoaApp {
             this.server = enableHandlerHttps(app.callback(), {
                 keyPath: serverDevOption.httpsConfig.key, // HTTPS cert key path.
                 certPath: serverDevOption.httpsConfig.pem, // HTTPS cert file path.
-                forceHttpsWhenEnabled: false // Enable.
             });
             this.server.listen(port, () => {
                 console.log(`${App.startParam.id || "master"}== Https 服务器启动完成正在监听端口=======》 ${port}`)
@@ -197,7 +178,7 @@ export class KoaApp {
                 }
             })
         } else {
-            this.server = createServer(app.callback());
+            this.server = http.createServer(app.callback());
             this.server.listen(port, () => {
                 console.log(`${App.startParam.id || "master"}==服务器启动完成正在监听端口=======》 ${port}`)
             }).on('error', (e: any) => {
@@ -207,8 +188,6 @@ export class KoaApp {
                     setTimeout(() => {
                         process.exit(1);
                     }, 300)
-
-
                 }
             })
         }

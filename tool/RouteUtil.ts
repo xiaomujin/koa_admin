@@ -10,7 +10,7 @@ import {ErrorCode} from "../const/ErrorCode";
  * QAQ
  * */
 export class RouteUtil {
-    public handlerMap: any = {}
+    public handlerMap: { [routeName: string]: BaseHandler } = {}
 
     constructor() {
         this.initHandler();
@@ -21,18 +21,12 @@ export class RouteUtil {
     }
 
 
-    public getHandler(route: string, method: string) {
-        let handlerClass = this.handlerMap[route];
-        if (!handlerClass && App.startParam.lazy) {
-            this.tryToLoadHandler(route + "Handler")
-            this.tryToLoadHandler(route + "Handler", "servers/" + App.startParam.serverType + "/handler")
-            handlerClass = this.handlerMap[route];
-        }
+    public getHandler(routeName: string, method: string) {
+        let handlerClass = this.handlerMap[routeName];
         if (!handlerClass) {
             return null;
         }
         return {handler: handlerClass[method], route: handlerClass};
-
     }
 
 
