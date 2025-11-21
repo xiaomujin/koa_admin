@@ -1,5 +1,5 @@
 import {serverDevOption} from "./serverDevOption";
-// master 参数在此
+
 export var master = {
     'id': 'master',
     'host': serverDevOption.host,

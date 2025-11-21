@@ -12,7 +12,7 @@ export default function () {
 class Lifecycle extends BaseLifecycle implements ILifeCycle {
     async beforeStartup() {
         App.startParam = Object.assign(App.startParam, master)
-        App.startParam.isStatic = true
+        App.startParam.isStatic = false
         App.startParam.client_ip = master.client_ip
         App.startParam.client_port = master.client_port
         App.startParam.port = master.port

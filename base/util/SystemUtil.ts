@@ -1,7 +1,5 @@
 import {BaseClass} from "../core/BaseClass";
 import {App} from "../App";
-import * as path from "path";
-import {getIpSearcher, IpSearcher} from "./libs/ip2reegion";
 import {serverDevOption} from "../../config/serverDevOption";
 
 import {configure, getLogger} from "log4js";
@@ -10,7 +8,6 @@ export class SystemUtil extends BaseClass {
     /*
     * 统一进程传参方式 -- key value  key[直接置为true]
     * */
-    private searcher: IpSearcher;
 
     public formatArgv(argv: string[]) {
         let startParam: any = {};
@@ -80,14 +77,6 @@ export class SystemUtil extends BaseClass {
             ip = ip.replace('::ffff:', '')
         }
         return ip;
-    }
-
-    public async ip2Region(ip: string) {
-        if (!this.searcher) {
-            this.searcher = getIpSearcher(path.resolve(__dirname, "../../resource/ip2region.xdb"))
-        }
-        return await this.searcher.searchCity(ip);
-
     }
 
     public async safeRunFuncAsync(func: Function, that: any, ...args: any[]) {

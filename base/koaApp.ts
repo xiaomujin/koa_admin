@@ -85,24 +85,6 @@ export class KoaApp {
         //创建koa对象
         let app = new Koa();
 
-        /**
-         app.use(cors({
-         origin: function(ctx) { //设置允许来自指定域名请求
-         const whiteList = ['https://www.fqniu.xyz', 'http://localhost:8080', 'http://localhost:8081']; //可跨域白名单
-         let url = ctx.header.referer.substr(0, ctx.header.referer.length - 1);
-         if(whiteList.includes(url)){
-         return url // 注意，这里域名末尾不能带/，否则不成功，所以在之前我把/通过substr干掉了
-         }
-         return 'http://localhost:8080' //默认允许本地请求8080端口可跨域
-         },
-         maxAge: 5, //指定本次预检请求的有效期，单位为秒。
-         credentials: true, //是否允许发送Cookie
-         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], //设置所允许的HTTP请求方法
-         allowHeaders: ['Content-Type', 'Authorization', 'Accept'], //设置服务器支持的所有头信息字段
-         exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'] //设置获取其他自定义字段
-         }))
-         */
-
         app.use(cors({
             origin: function (evt) {
                 // 此处不能用*号，前端需要携带cookie
@@ -117,9 +99,9 @@ export class KoaApp {
         app.use(this.initBackFnc)
 
         //配置session的中间件
-        app.keys = ['ccwlzj'];   /*cookie的签名*/
+        app.keys = ['qm'];   /*cookie的签名*/
         const CONFIG = {
-            key: 'game.sess', /** 默认 */
+            key: 'key', /** 默认 */
             maxAge: 24 * 60 * 60 * 1000,  /*  cookie的过期时间        【需要修改】  */
             overwrite: true, /** (boolean) can overwrite or not (default true)    没有效果，默认 */
             httpOnly: true, /**  true表示只有服务器端可以获取cookie */
@@ -158,8 +140,8 @@ export class KoaApp {
 
         app.use(async ctx => {
             ctx.body = 'there is 404';
-
         })
+
         if (serverDevOption.https) {
             this.server = enableHandlerHttps(app.callback(), {
                 keyPath: serverDevOption.httpsConfig.key, // HTTPS cert key path.
