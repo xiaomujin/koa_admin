@@ -5,8 +5,10 @@
   "main": "./dist/app.js",
   "scripts": {
     "build": "tsc",
+    "start": "node ./dist/app.js",
     "debug": "node tsrun.js",
-    "dev": "ts-node app.ts"
+    "dev": "ts-node app.ts",
+    "clean": "rmdir /s /q .\\dist & rmdir /s /q .\\logs & rmdir /s /q .\\node_modules"
   },
   "author": "",
   "license": "ISC",
