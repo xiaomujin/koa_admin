@@ -11,8 +11,4 @@ export var serverDevOption = {
     logLevel: "debug",
     loggerName: "console",
     hotScript: true,
-    adminConfig: {
-        title: "本地开发服管理后台",
-    },
-
 };
